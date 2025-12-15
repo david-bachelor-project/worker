@@ -16,17 +16,15 @@ public class KafkaConsumer {
     private final ObjectMapper objectMapper;
     private final StorageService storageService;
     private final OcrService ocrService;
+    private final GenAiWorkerService genAiWorkerService;
     private final DocumentRepository documentRepository;
+    private final ElasticService elasticService;
 
-    @KafkaListener(topics = "${spring.kafka.consumer.topic}", groupId = "${spring.kafka.consumer.group-id}")
- 
     @KafkaListener(topics = "${spring.kafka.consumer.topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void listen(String message) {
         try {
             String json = message;
-            // If payload is a JSON string literal (e.g. "\"{...}\""), unwrap it
             if (json != null && json.trim().startsWith("\"")) {
-                // first parse the outer string to get the inner JSON text
                 json = objectMapper.readValue(json, String.class);
             }
 
@@ -36,11 +34,27 @@ public class KafkaConsumer {
             byte[] pdfBytes = storageService.getPdf(doc.getStoragePath());
             String extractedText = ocrService.extractText(pdfBytes);
 
+            // Step 1: mark OCR done
             documentRepository.findById(doc.getId()).ifPresent(entity -> {
                 entity.setStatus(DocumentStatus.OCR_DONE);
                 documentRepository.save(entity);
                 log.info("Updated document {} status to OCR_DONE", entity.getId());
             });
+
+            log.info("Starting AI summary...this will take some time");
+            String summary = genAiWorkerService.summarize(extractedText);
+            log.info("Generated summary for document {}: {}", doc.getId(), summary);
+
+            // Step 3: mark summarized
+            documentRepository.findById(doc.getId()).ifPresent(entity -> {
+                entity.setStatus(DocumentStatus.SUMMARIZED);
+                documentRepository.save(entity);
+                log.info("Updated document {} status to SUMMARIZED", entity.getId());
+            });
+
+            // Step 4: index into Elasticsearch
+            elasticService.indexDocument(doc.getId().toString(), extractedText, summary);
+            log.info("Indexed document {} into Elasticsearch", doc.getId());
 
         } catch (Exception e) {
             log.error("Failed to process document message: {}", e.getMessage(), e);
