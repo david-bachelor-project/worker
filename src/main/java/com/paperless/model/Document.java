@@ -30,4 +30,5 @@ public class Document {
     private DocumentStatus status;
     private String mimeType;
     private Long sizeInBytes;
+    private int accessCounter;
 }
