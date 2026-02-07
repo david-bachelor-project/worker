@@ -2,16 +2,20 @@ package com.paperless.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class GenAiWorkerService {
 
     private final WebClient webClient;
 
-    public GenAiWorkerService(WebClient.Builder builder) {
-        this.webClient = builder.baseUrl("http://localhost:11434").build();
+    public GenAiWorkerService(WebClient.Builder builder,
+            @Value("${paperless.genai.url}") String genAiUrl
+    ) {
+        this.webClient = builder
+                .baseUrl(genAiUrl)
+                .build();
     }
-
     public String summarize(String text) {
         String prompt = "Summarize the following text in 3 sentences:\n\n" + text;
 
