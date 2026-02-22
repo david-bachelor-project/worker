@@ -42,19 +42,19 @@ public class KafkaConsumer {
                 log.info("Updated document {} status to OCR_DONE", entity.getId());
             });
 
-            log.info("Starting AI summary...this will take some time");
-            String summary = genAiWorkerService.summarize(extractedText);
-            log.info("Generated summary for document {}: {}", doc.getId(), summary);
+            //log.info("Starting AI summary...this will take some time");
+            //String summary = genAiWorkerService.summarize(extractedText);
+            //log.info("Generated summary for document {}: {}", doc.getId(), summary);
 
             // Step 3: mark summarized
-            documentRepository.findById(doc.getId()).ifPresent(entity -> {
+            /*documentRepository.findById(doc.getId()).ifPresent(entity -> {
                 entity.setStatus(DocumentStatus.SUMMARIZED);
                 documentRepository.save(entity);
                 log.info("Updated document {} status to SUMMARIZED", entity.getId());
-            });
+            });*/
 
             // Step 4: index into Elasticsearch
-            elasticService.indexDocument(doc.getId().toString(), extractedText, summary);
+            elasticService.indexDocument(doc.getId().toString(), extractedText);
             log.info("Indexed document {} into Elasticsearch", doc.getId());
 
         } catch (Exception e) {

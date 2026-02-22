@@ -20,10 +20,9 @@ public class ElasticService {
         .build();
     }
 
-    public void indexDocument(String id, String ocrText, String summary) {
+    public void indexDocument(String id, String ocrText) {
         Map<String, Object> payload = Map.of(
-            "ocrText", ocrText,
-            "summary", summary
+            "ocrText", ocrText
         );
 
         webClient.put()
