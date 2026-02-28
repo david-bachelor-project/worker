@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-worker
+  labels:
+    app: paperless-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperless-worker
+  template:
+    metadata:
+      labels:
+        app: paperless-worker
+    spec:
+      imagePullSecrets:
+        - name: ghcr-creds
+      containers:
+        - name: worker
+          image: ghcr.io/david-bachelor-project/worker:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084
+          envFrom:
+            - configMapRef:
+                name: paperless-worker-config

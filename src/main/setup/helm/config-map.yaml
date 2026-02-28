@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paperless-worker-config
+data:
+  KAFKA_BOOTSTRAP_SERVER: "redpanda.kafka.svc.cluster.local:9092"
+  KAFKA_GROUP: "paperless-group"
+  OCR_TOPIC: "ocr-queue"
+
+  POSTGRES_URL: "jdbc:postgresql://postgres.postgres.svc.cluster.local:5432/paperless"
+  POSTGRES_USERNAME: "paperless"
+  POSTGRES_PASSWORD: "paperless123"
+
+  MINIO_URL: "http://minio.minio.svc.cluster.local:9000"
+  MINIO_ACCESS_KEY: "admin"
+  MINIO_SECRET_KEY: "admin123"
+  MINIO_BUCKET: "documents"
+
+  ELASTIC_URL: "http://elastic.elastic.svc.cluster.local:9200"
