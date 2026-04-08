@@ -16,4 +16,4 @@ data:
   MINIO_SECRET_KEY: "admin123"
   MINIO_BUCKET: "documents"
 
-  ELASTIC_URL: "http://elastic.elastic.svc.cluster.local:9200"
+  ELASTIC_URL: "http://elasticsearch.elastic.svc.cluster.local:9200"
